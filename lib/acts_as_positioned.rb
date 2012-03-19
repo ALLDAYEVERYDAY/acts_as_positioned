@@ -8,7 +8,7 @@ module ActsAsPositioned
 
     def acts_as_positioned(opts={})
       
-      positioned_under = opts[:under].nil? ? self.name : "self.#{opts[:under].to_s}.#{self.name.tableize}"
+      positioned_under = opts[:under].nil? ? self.name : "self.#{opts[:under].to_s}.#{self.name.tableize}" rescue "[]"
       
       class_eval <<-CGF
         include ActsAsPositioned::InstanceMethods
@@ -34,18 +34,18 @@ module ActsAsPositioned
     end
 
     def fix_positions
-      if !self.old_position.nil? && self.old_position >= self.position 
-        broken_records = siblings_in_position.order("position ASC, updated_at DESC")
-      else
-        broken_records = siblings_in_position.order("position ASC, updated_at ASC")
-      end
+      if siblings_in_position.count > 1
+        if !self.old_position.nil? && self.old_position >= self.position 
+          broken_records = siblings_in_position.order("position ASC, updated_at DESC")
+        else
+          broken_records = siblings_in_position.order("position ASC, updated_at ASC")
+        end
 
-      broken_records.each_with_index do |s,i|
-        s.update_column :position, i+1
+        broken_records.each_with_index do |s,i|
+          s.update_column :position, i+1
+        end
       end
-
     end
-
   end
 
 end
