@@ -28,13 +28,17 @@ module ActsAsPositioned
   module InstanceMethods
     
     def set_old_position
-      count = siblings_in_position.count + 1
-      self.old_position = self.new_record? ? count : self.class.find(self.id).position
-      self.position = count if self.position.blank?
+      begin
+        count = siblings_in_position.count + 1
+        self.old_position = self.new_record? ? count : self.class.find(self.id).position
+        self.position = count if self.position.blank?
+      rescue
+        #fail gracefully
+      end
     end
 
     def fix_positions
-      if siblings_in_position.count > 1
+      begin
         if !self.old_position.nil? && self.old_position >= self.position 
           broken_records = siblings_in_position.order("position ASC, updated_at DESC")
         else
@@ -44,6 +48,8 @@ module ActsAsPositioned
         broken_records.each_with_index do |s,i|
           s.update_column :position, i+1
         end
+      rescue
+        #fail gracefully
       end
     end
   end
