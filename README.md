@@ -10,7 +10,6 @@ Requirements
 ------------
 
 1. You are using Rails 3.1 or higher.
-2. You have defined an integer field called "position" on your model.
 
 
 Installation
@@ -21,6 +20,12 @@ Add this to your gemfile:
     gem 'acts_as_positioned', :git => 'git://github.com/ALLDAYEVERYDAY/acts_as_positioned.git'
 
 Run <code>bundle install</code>.
+
+Run `rails generate position MODEL`
+
+The generator creates a migration to add a position column of type integer to the specified model.
+
+Run `rake db:migrate`
 
 
 Usage
