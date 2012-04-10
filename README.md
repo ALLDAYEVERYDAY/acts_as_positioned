@@ -21,7 +21,11 @@ Add this to your gemfile:
 
 Run <code>bundle install</code>.
 
-Run `rails generate position`
+Run `rails generate position MODEL`
+
+The generator creates a migration to add a position column of type integer to the specified model.
+
+Run `rake db:migrate`
 
 
 Usage
