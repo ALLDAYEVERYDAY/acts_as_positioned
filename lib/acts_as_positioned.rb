@@ -17,6 +17,7 @@ module ActsAsPositioned
         end
 
         attr_accessor :old_position
+        attr_accessor :should_fix_positions
         before_save :set_old_position
         after_save :fix_positions
         after_destroy :fix_positions
@@ -28,17 +29,24 @@ module ActsAsPositioned
   module InstanceMethods
     
     def set_old_position
-      begin
-        count = siblings_in_position.count + 1
-        self.old_position = self.new_record? ? count : self.class.find(self.id).position
-        self.position = count if self.position.blank?
-      rescue
-        #fail gracefully
-      end
+      if self.position_changed?
+        self.should_fix_positions = true
+        begin
+          count = siblings_in_position.count + 1
+          self.old_position = self.new_record? ? count : self.class.find(self.id).position
+          self.position = count if self.position.blank?
+        rescue
+          #fail gracefully
+        end
+      else
+        self.should_fix_positions = false
+        return true
+      end 
     end
 
     def fix_positions
       begin
+        return true unless self.should_fix_positions
         if !self.old_position.nil? && self.old_position >= self.position 
           broken_records = siblings_in_position.order("position ASC, updated_at DESC")
         else
