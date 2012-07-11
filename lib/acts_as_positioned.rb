@@ -29,7 +29,7 @@ module ActsAsPositioned
   module InstanceMethods
     
     def set_old_position
-      if self.position_changed?
+      if self.position_changed? || self.position.blank?
         self.should_fix_positions = true
         begin
           count = siblings_in_position.count + 1
